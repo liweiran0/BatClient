@@ -152,7 +152,7 @@ void ServerNet::run()
             }
             else
             {
-              cout << SocketInfo->DataBuf.buf << endl;// 如果成功接收数据，则打印收到的数据
+              //cout << SocketInfo->DataBuf.buf << endl;// 如果成功接收数据，则打印收到的数据
               if (callback)
                 callback(SocketInfo->DataBuf.buf, SocketInfo->Socket);
             }

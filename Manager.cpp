@@ -29,10 +29,10 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
     tmp = tmp.substr(tmp.find_first_of(":") + 1);
     processID = stoi(tmp.substr(0, tmp.find_first_of(":")));
     tmp = tmp.substr(tmp.find_first_of(":") + 1);
-    processor = processID = stoi(tmp.substr(0, tmp.find_first_of(":")));
+    processor = stoi(tmp.substr(0, tmp.find_first_of(":")));
     tmp = tmp.substr(tmp.find_first_of(":") + 1);
     string addr = tmp;
-    doTasks[processID]->startTask(taskID, processID, processor, addr, bind(&Manager::callback, this, placeholders::_1));
+    doTasks[processor]->startTask(taskID, processID, processor, addr, bind(&Manager::callback, this, placeholders::_1));
   }
 }
 
