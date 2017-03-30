@@ -1,6 +1,26 @@
 #include "ServerNet.h"
 #include <iostream>
 
+bool GetAddressBySocket(SOCKET m_socket)
+{
+  SOCKADDR_IN m_address;
+  memset(&m_address, 0, sizeof(m_address));
+  int nAddrLen = sizeof(m_address);
+
+  //根据套接字获取地址信息
+  if (::getpeername(m_socket, (SOCKADDR*) &m_address, &nAddrLen) != 0)
+  {
+    printf("Get IP address by socket failed!n");
+    return false;
+  }
+
+  //读取IP和Port
+  char ipDec[32];
+  inet_ntop(AF_INET, &m_address.sin_addr, ipDec, 32);
+  cout << "IP: " << ipDec << "  PORT: " << ntohs(m_address.sin_port) << endl;
+  return true;
+}
+
 int ServerNet::init(const char* address, int port)
 {
   localIP = address;
@@ -107,6 +127,7 @@ void ServerNet::run()
               return;
             }
             // 创建套接字信息，初始化LPSOCKET_INFORMATION结构体数据，将AcceptSocket添加到SocketArray数组中
+            //GetAddressBySocket(AcceptSocket);
             if (CreateSocketInformation(AcceptSocket) == FALSE)
               return;
           }
@@ -132,7 +153,7 @@ void ServerNet::run()
             // 错误编码等于WSAEWOULDBLOCK表示暂没有数据，否则表示出现异常
             if (WSAGetLastError() != WSAEWOULDBLOCK)
             {
-              cout << "WSARecv()   failed   with   error  " << WSAGetLastError() << endl;
+              //cout << "WSARecv()   failed   with   error  " << WSAGetLastError() << endl;
               FreeSocketInformation(i);        // 释放套接字信息
             }
             continue;
@@ -170,7 +191,7 @@ void ServerNet::run()
               // 错误编码等于WSAEWOULDBLOCK表示暂没有数据，否则表示出现异常
               if (WSAGetLastError() != WSAEWOULDBLOCK)
               {
-                cout << "WSASend()   failed   with   error   " << WSAGetLastError() << endl;
+                //cout << "WSASend()   failed   with   error   " << WSAGetLastError() << endl;
                 FreeSocketInformation(i);        // 释放套接字信息
               }
               continue;
@@ -195,6 +216,48 @@ void ServerNet::run()
 void ServerNet::setCallback(decltype(callback) cb)
 {
   callback = cb;
+}
+
+BOOL   ServerNet::CreateSocketInformation(SOCKET   s)
+{
+  LPSOCKET_INFORMATION   SI;                                        // 用于保存套接字的信息       
+ //  printf("Accepted   socket   number   %d\n",   s);            // 打开已接受的套接字编号
+// 为SI分配内存空间
+  if ((SI = (LPSOCKET_INFORMATION) GlobalAlloc(GPTR, sizeof(SOCKET_INFORMATION))) == NULL)
+  {
+    printf("GlobalAlloc()   failed   with   error   %d\n", GetLastError());
+    return   FALSE;
+  }
+  // 初始化SI的值    
+  SI->Socket = s;
+  SI->BytesSEND = 0;
+  SI->BytesRECV = 0;
+
+  // 在SocketArray数组中增加一个新元素，用于保存SI对象 
+  SocketArray[TotalSockets] = SI;
+  TotalSockets++;                        // 增加套接字数量
+
+  return(TRUE);
+}
+
+// 从数组SocketArray中删除指定的LPSOCKET_INFORMATION对象
+void   ServerNet::FreeSocketInformation(DWORD   Index)
+{
+  LPSOCKET_INFORMATION SI = SocketArray[Index];    // 获取指定索引对应的LPSOCKET_INFORMATION对象
+  DWORD   i;
+
+  closesocket(SI->Socket);       // 关闭套接字
+  GlobalFree(SI);   // 释放指定LPSOCKET_INFORMATION对象资源
+// 将数组中index索引后面的元素前移
+  if (Index != (TotalSockets - 1))
+  {
+    for (i = Index; i < TotalSockets; i++)
+    {
+      SocketArray[i] = SocketArray[i + 1];
+    }
+  }
+
+  TotalSockets--;        // 套接字总数减1
 }
 
 string getLocalIpAddress()
@@ -251,6 +314,7 @@ string getLocalIpAddress()
   return ip;
 }
 
+
 short getUnusedPort(short start_port)
 {
   int sock;
@@ -292,47 +356,4 @@ short getUnusedPort(short start_port)
     }
   }
   return 0;
-}
-
-
-BOOL   ServerNet::CreateSocketInformation(SOCKET   s)
-{
-  LPSOCKET_INFORMATION   SI;                                        // 用于保存套接字的信息       
- //  printf("Accepted   socket   number   %d\n",   s);            // 打开已接受的套接字编号
-// 为SI分配内存空间
-  if ((SI = (LPSOCKET_INFORMATION) GlobalAlloc(GPTR, sizeof(SOCKET_INFORMATION))) == NULL)
-  {
-    printf("GlobalAlloc()   failed   with   error   %d\n", GetLastError());
-    return   FALSE;
-  }
-  // 初始化SI的值    
-  SI->Socket = s;
-  SI->BytesSEND = 0;
-  SI->BytesRECV = 0;
-
-  // 在SocketArray数组中增加一个新元素，用于保存SI对象 
-  SocketArray[TotalSockets] = SI;
-  TotalSockets++;                        // 增加套接字数量
-
-  return(TRUE);
-}
-
-// 从数组SocketArray中删除指定的LPSOCKET_INFORMATION对象
-void   ServerNet::FreeSocketInformation(DWORD   Index)
-{
-  LPSOCKET_INFORMATION SI = SocketArray[Index];    // 获取指定索引对应的LPSOCKET_INFORMATION对象
-  DWORD   i;
-
-  closesocket(SI->Socket);       // 关闭套接字
-  GlobalFree(SI);   // 释放指定LPSOCKET_INFORMATION对象资源
-// 将数组中index索引后面的元素前移
-  if (Index != (TotalSockets - 1))
-  {
-    for (i = Index; i < TotalSockets; i++)
-    {
-      SocketArray[i] = SocketArray[i + 1];
-    }
-  }
-
-  TotalSockets--;        // 套接字总数减1
 }
