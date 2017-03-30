@@ -11,7 +11,7 @@ void main(int argv, char* argc[])
   string localIP = getLocalIpAddress();
   
   int serverPort = 30000;
-  int localCores = 8;
+  int localCores = 1;
 
   if (argv >= 2)
   {

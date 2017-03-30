@@ -54,18 +54,19 @@ int ClientNet::SendMsg(string msg)
 void ClientNet::Close()
 {
   char buf[1024];
-  while (1)
+  if (recv(m_sock, buf, 1024, 0) <= 0)
   {
-    if (recv(m_sock, buf, 1024, 0) <= 0)
-    {
-      printf("关闭连接!\n");
-      closesocket(m_sock);
-    }
-    string tmp(buf);
-    if (tmp.find("OK") == 0)
-      closesocket(m_sock);
-    else
-      continue;
-    break;
+    cout << "关闭连接!" << endl;
   }
+  string tmp(buf);
+  if (tmp.find("OK") == 0)
+  {
+    cout << "OK" << endl;
+  }
+  else
+  {
+    cout << "other error!" << endl;
+  }
+  closesocket(m_sock);
+  WSACleanup();
 }

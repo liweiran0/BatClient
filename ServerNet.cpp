@@ -201,30 +201,22 @@ string getLocalIpAddress()
 {
   WSADATA wsaData;
   int iResult;
-
   DWORD dwRetval;
-
   int i = 1;
   struct addrinfo *result = NULL;
   struct addrinfo *ptr;
   struct addrinfo hints;
   struct sockaddr_in* sockaddr_ipv4;
-
   iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (iResult != 0)
-  {
     return "";
-  }
-
   ZeroMemory(&hints, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
-
   char local[255] = {0};
   gethostname(local, sizeof(local));
   string ip = "";
-
   dwRetval = getaddrinfo(local, 0, &hints, &result);
   if (dwRetval != 0)
   {
