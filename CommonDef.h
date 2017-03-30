@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-//#include <winsock.h>
-#include <WINSOCK2.H>
+#include <WS2tcpip.h>
+#include <WinSock2.h>
+
 using namespace std;

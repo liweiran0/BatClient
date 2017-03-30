@@ -7,14 +7,14 @@ int ServerNet::init(const char* address, int port)
   localPort = port;
   if ((Ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
   {
-    printf("WSAStartup()   failed   with   error   %d\n", Ret);
+    cout <<"WSAStartup()   failed   with   error   " << Ret << endl;
     WSACleanup();
     return -1;
   }
   // 创建用于监听的套接字 
   if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
   {
-    printf("WSASocket()   failed   with   error   %d\n", WSAGetLastError());
+    cout <<"WSASocket()   failed   with   error  "<< WSAGetLastError() << endl;
     return -1;
   }
   // 设置监听地址和端口号
@@ -24,9 +24,10 @@ int ServerNet::init(const char* address, int port)
   // 绑定监听套接字到本地地址和端口
   if (::bind(ListenSocket, (PSOCKADDR) &InternetAddr, sizeof(InternetAddr)) == SOCKET_ERROR)
   {
-    printf("bind()   failed   with   error   %d\n", WSAGetLastError());
+    cout << "bind()   failed   with   error  " << WSAGetLastError() << endl;
     return -1;
   }
+  return 0;
 }
 
 void ServerNet::registerThread(string ip, short port, int cores)
@@ -40,7 +41,6 @@ void ServerNet::registerThread(string ip, short port, int cores)
   cmd += ":" + to_string(cores);
   //cmd: register:IPAddr:port:CoreNumber
   client.SendMsg(cmd);
-
   client.Close();
 }
 
@@ -55,24 +55,21 @@ void ServerNet::run()
 {
   if (listen(ListenSocket, 5))
   {
-    printf("listen()   failed   with   error   %d\n", WSAGetLastError());
+    cout << "listen()   failed   with   error   " << WSAGetLastError() << endl;
     return;
   }
   // 设置为非阻塞模式
   ULONG NonBlock = 1;
   if (ioctlsocket(ListenSocket, FIONBIO, &NonBlock) == SOCKET_ERROR)
   {
-    printf("ioctlsocket() failed with error %d\n", WSAGetLastError());
+    cout << "ioctlsocket() failed with error " << WSAGetLastError() << endl;
     return;
   }
-
   CreateSocketInformation(ListenSocket);// 为ListenSocket套接字创建对应的SOCKET_INFORMATION,把ListenSocket添加到SocketArray数组中
-
   while (true)
   {
     FD_ZERO(&ReadSet);// 准备用于网络I/O通知的读/写套接字集合
     FD_ZERO(&WriteSet);
-
     FD_SET(ListenSocket, &ReadSet);// 向ReadSet集合中添加监听套接字ListenSocket
                                    // 将SocketArray数组中的所有套接字添加到WriteSet和ReadSet集合中,SocketArray数组中保存着监听套接字和所有与客户端进行通信的套接字
                                    // 这样就可以使用select()判断哪个套接字有接入数据或者读取/写入数据
@@ -81,12 +78,11 @@ void ServerNet::run()
       LPSOCKET_INFORMATION SocketInfo = SocketArray[i];
       FD_SET(SocketInfo->Socket, &ReadSet);//这说明该socket有读操作。而读操作是客户端发起的
       FD_SET(SocketInfo->Socket, &WriteSet);//这说明该socket有写操作。
-
     }
     // 判断读/写套接字集合中就绪的套接字    
     if ((Total = select(0, &ReadSet, &WriteSet, NULL, NULL)) == SOCKET_ERROR)//将NULL以形参传入Timeout，即不传入时间结构，就是将select置于阻塞状态，一定等到监视文件描述符集合中某个文件描述符发生变化为止.服务器会停到这里等待客户端相应
     {
-      printf("select()   returned   with   error   %d\n", WSAGetLastError());
+      cout << "select()   returned   with   error   " << WSAGetLastError() << endl;
       return;
     }
     // 依次处理所有套接字。本服务器是一个回应服务器，即将从客户端收到的字符串再发回到客户端。
@@ -107,7 +103,7 @@ void ServerNet::run()
             NonBlock = 1;
             if (ioctlsocket(AcceptSocket, FIONBIO, &NonBlock) == SOCKET_ERROR)
             {
-              printf("ioctlsocket()   failed   with   error   %d\n", WSAGetLastError());
+              cout << "ioctlsocket()   failed   with   error   " << WSAGetLastError() << endl;
               return;
             }
             // 创建套接字信息，初始化LPSOCKET_INFORMATION结构体数据，将AcceptSocket添加到SocketArray数组中
@@ -118,7 +114,7 @@ void ServerNet::run()
           {
             if (WSAGetLastError() != WSAEWOULDBLOCK)
             {
-              printf("accept()   failed   with   error   %d\n", WSAGetLastError());
+              cout << "accept()   failed   with   error   " << WSAGetLastError() << endl;
               return;
             }
           }
@@ -136,7 +132,7 @@ void ServerNet::run()
             // 错误编码等于WSAEWOULDBLOCK表示暂没有数据，否则表示出现异常
             if (WSAGetLastError() != WSAEWOULDBLOCK)
             {
-              printf("WSARecv()   failed   with   error   %d\n", WSAGetLastError());
+              cout << "WSARecv()   failed   with   error  " << WSAGetLastError() << endl;
               FreeSocketInformation(i);        // 释放套接字信息
             }
             continue;
@@ -174,15 +170,15 @@ void ServerNet::run()
               // 错误编码等于WSAEWOULDBLOCK表示暂没有数据，否则表示出现异常
               if (WSAGetLastError() != WSAEWOULDBLOCK)
               {
-                printf("WSASend()   failed   with   error   %d\n", WSAGetLastError());
+                cout << "WSASend()   failed   with   error   " << WSAGetLastError() << endl;
                 FreeSocketInformation(i);        // 释放套接字信息
               }
               continue;
             }
             else
             {
-              SocketInfo->BytesSEND += SendBytes;            // 记录发送数据的字节数
-                                                             // 如果从客户端接收到的数据都已经发回到客户端，则将发送和接收的字节数量设置为0
+              SocketInfo->BytesSEND += SendBytes;        // 记录发送数据的字节数
+                                                         // 如果从客户端接收到的数据都已经发回到客户端，则将发送和接收的字节数量设置为0
               if (SocketInfo->BytesSEND == SocketInfo->BytesRECV)
               {
                 SocketInfo->BytesSEND = 0;
@@ -191,9 +187,7 @@ void ServerNet::run()
             }
           }
         }
-
       }    // 如果ListenSocket未就绪，并且返回的错误不是WSAEWOULDBLOCK（该错误表示没有接收的连接请求），则出现异常
-
     }
   }
 }
@@ -205,21 +199,64 @@ void ServerNet::setCallback(decltype(callback) cb)
 
 string getLocalIpAddress()
 {
-  WORD wVersionRequested = MAKEWORD(2, 2);
   WSADATA wsaData;
-  if (WSAStartup(wVersionRequested, &wsaData) != 0)
+  int iResult;
+
+  DWORD dwRetval;
+
+  int i = 1;
+  struct addrinfo *result = NULL;
+  struct addrinfo *ptr;
+  struct addrinfo hints;
+  struct sockaddr_in* sockaddr_ipv4;
+
+  iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (iResult != 0)
+  {
     return "";
+  }
+
+  ZeroMemory(&hints, sizeof(hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+
   char local[255] = {0};
   gethostname(local, sizeof(local));
-  hostent* ph = gethostbyname(local);
-  if (ph == nullptr)
-    return "";
-  in_addr addr;
-  memcpy(&addr, ph->h_addr_list[0], sizeof(in_addr)); // 这里仅获取第一个ip  
-  string localIP;
-  localIP.assign(inet_ntoa(addr));
+  string ip = "";
+
+  dwRetval = getaddrinfo(local, 0, &hints, &result);
+  if (dwRetval != 0)
+  {
+  }
+  else
+  {
+    bool foundIp = false;
+    for (ptr = result; ptr != NULL && !foundIp; ptr = ptr->ai_next)
+    {
+      switch (ptr->ai_family)
+      {
+        case AF_UNSPEC:
+          break;
+        case AF_INET:
+          sockaddr_ipv4 = (struct sockaddr_in *) ptr->ai_addr;
+          char ipDec[32];
+          inet_ntop(AF_INET, &sockaddr_ipv4->sin_addr, ipDec, 32);
+          ip = ipDec;
+          foundIp = true;
+          break;
+        case AF_INET6:
+          break;
+        case AF_NETBIOS:
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  freeaddrinfo(result);
   WSACleanup();
-  return localIP;
+  return ip;
 }
 
 short getUnusedPort(short start_port)

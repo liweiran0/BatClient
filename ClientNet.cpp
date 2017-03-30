@@ -24,7 +24,8 @@ int ClientNet::Connect(const char* address, int port)
   sockaddr_in sockaddrServer;
   sockaddrServer.sin_family = AF_INET;
   sockaddrServer.sin_port = htons(port);
-  sockaddrServer.sin_addr.s_addr = inet_addr(address);
+  inet_pton(AF_INET, address, &sockaddrServer.sin_addr.s_addr);
+  //sockaddrServer.sin_addr.s_addr = inet_addr(address);
   iErrMsg = connect(m_sock, (sockaddr*) &sockaddrServer, sizeof(sockaddrServer));
   if (iErrMsg < 0)
   {
