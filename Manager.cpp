@@ -22,7 +22,15 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
     //cmd="start":taskid="TaskID":taskname="TaskName":processid="ProcessID":coreid="ProcessorID":bat="LocalScriptName":logdir="RemoteLogDir"
     if (doTasks.count(param["coreid"]) > 0)
     {
-      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::callback, this, placeholders::_1));
+      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1));
+    }
+  }
+  else if (param["cmd"] == "kill")
+  {
+    //cmd="kill":taskid="taskID":processid="processID":coreid="ProcessorID":bat="RemoteScriptBat"
+    if (doTasks.count(param["coreid"]) > 0)
+    {
+      doTasks[param["coreid"]]->killTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::killCallback, this, placeholders::_1));
     }
   }
 }
@@ -33,11 +41,22 @@ void Manager::setRemote(string ip, int port)
   remotePort = port;
 }
 
-void Manager::callback(string cmd)
+void Manager::finishCallback(string cmd)
 {
   ClientNet client;
   cmd = "cmd=\"finish\":ip=\"" + localIP + "\":" + cmd;
   //cmd="finish":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
+  cout << "send    :" + cmd << endl;
+  client.Connect(remoteIP.c_str(), remotePort);
+  client.SendMsg(cmd);
+  client.Close();
+}
+
+void Manager::killCallback(string cmd)
+{
+  ClientNet client;
+  cmd = "cmd=\"killed\":ip=\"" + localIP + "\":" + cmd;
+  //cmd="kill":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
   cout << "send    :" + cmd << endl;
   client.Connect(remoteIP.c_str(), remotePort);
   client.SendMsg(cmd);

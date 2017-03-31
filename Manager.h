@@ -8,7 +8,8 @@ public:
   Manager(int cores, string ip);
   void setRemote(string ip, int port);
 private:
-  void callback(string cmd);
+  void finishCallback(string cmd);
+  void killCallback(string cmd);
   void parseCommand(string cmd, map<string, string>& param);
   int coreNumber;
   string localIP;
