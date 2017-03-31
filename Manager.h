@@ -9,9 +9,10 @@ public:
   void setRemote(string ip, int port);
 private:
   void callback(string cmd);
+  void parseCommand(string cmd, map<string, string>& param);
   int coreNumber;
   string localIP;
-  vector<shared_ptr<DoTask>> doTasks;
+  map<string, shared_ptr<DoTask>> doTasks;
   string remoteIP;
   int remotePort;
 };

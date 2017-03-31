@@ -1,0 +1,8 @@
+# BatClient
+
+2017-3-31
+Change type of taskid, processid, processorid to string.
+Use a new string parse function to avoid incomplete message in tcp transmission.
+
+2017-3-30
+Fix a string parse bug.

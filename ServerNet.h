@@ -11,7 +11,7 @@ typedef   struct   _SOCKET_INFORMATION
   SOCKET   Socket;                            // 与客户端进行通信的套接字
   DWORD   BytesSEND;                    // 保存套接字发送的字节数
   DWORD   BytesRECV;                    // 保存套接字接收的字节数
-  
+  string  cmd_str;                      // 拼接字符串
 } SOCKET_INFORMATION, *LPSOCKET_INFORMATION;
 
 
@@ -52,3 +52,4 @@ public:
 
 string getLocalIpAddress();
 short getUnusedPort(short start_port);
+string getCommandFromString(string &str);

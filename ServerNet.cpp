@@ -56,10 +56,10 @@ void ServerNet::registerThread(string ip, short port, int cores)
   remoteIP = ip;
   remotePort = port;
   client.Connect(remoteIP.c_str(), remotePort);
-  string cmd("register:");
-  cmd += localIP + ":" + to_string(localPort);
-  cmd += ":" + to_string(cores);
-  //cmd: register:IPAddr:port:CoreNumber
+  string cmd("cmd=\"register\":ip=\"");
+  cmd += localIP + "\":port=\"" + to_string(localPort);
+  cmd += "\":corenum=\"" + to_string(cores) + "\"";
+  //cmd="register":ip="IPAddr":port="port":corenum="CoreNumber"
   client.SendMsg(cmd);
   client.Close();
 }
@@ -108,8 +108,8 @@ void ServerNet::run()
     // 依次处理所有套接字。本服务器是一个回应服务器，即将从客户端收到的字符串再发回到客户端。
     for (DWORD i = 0; i < TotalSockets; i++)
     {
-      LPSOCKET_INFORMATION SocketInfo = SocketArray[i];            // SocketInfo为当前要处理的套接字信息
-                                                                   // 判断当前套接字的可读性，即是否有接入的连接请求或者可以接收数据
+      LPSOCKET_INFORMATION SocketInfo = SocketArray[i];      // SocketInfo为当前要处理的套接字信息
+                                                            // 判断当前套接字的可读性，即是否有接入的连接请求或者可以接收数据
       if (FD_ISSET(SocketInfo->Socket, &ReadSet))
       {
         if (SocketInfo->Socket == ListenSocket)        // 对于监听套接字来说，可读表示有新的连接请求
@@ -169,9 +169,11 @@ void ServerNet::run()
             }
             else
             {
+              SocketInfo->cmd_str += SocketInfo->DataBuf.buf;
+              string cmd = getCommandFromString(SocketInfo->cmd_str);
               //cout << SocketInfo->DataBuf.buf << endl;// 如果成功接收数据，则打印收到的数据
-              if (callback)
-                callback(SocketInfo->DataBuf.buf, SocketInfo->Socket);
+              if (cmd != "" && callback)
+                callback(cmd, SocketInfo->Socket);
             }
           }
         }
@@ -198,8 +200,8 @@ void ServerNet::run()
             }
             else
             {
-              SocketInfo->BytesSEND += SendBytes;        // 记录发送数据的字节数
-                                                         // 如果从客户端接收到的数据都已经发回到客户端，则将发送和接收的字节数量设置为0
+              SocketInfo->BytesSEND += SendBytes;  // 记录发送数据的字节数
+                                                   // 如果从客户端接收到的数据都已经发回到客户端，则将发送和接收的字节数量设置为0
               if (SocketInfo->BytesSEND == SocketInfo->BytesRECV)
               {
                 SocketInfo->BytesSEND = 0;
@@ -356,4 +358,25 @@ short getUnusedPort(short start_port)
     }
   }
   return 0;
+}
+
+string getCommandFromString(string& str)
+{
+  string ret = "";
+  auto brace = str.find_first_of("{");
+  if (brace != string::npos)
+  {
+    str = str.substr(brace);
+    auto backbrace = str.find_first_of("}");
+    if (backbrace != string::npos)
+    {
+      ret = str.substr(1, backbrace - 1);
+      str = str.substr(backbrace + 1);
+    }
+  }
+  else
+  {
+    str = "";
+  }
+  return ret;
 }
