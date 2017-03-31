@@ -15,6 +15,7 @@ Manager::Manager(int cores, string ip)
 void Manager::cmdCallback(string cmd, SOCKET sock)
 {
   cout << "receive :" << cmd << endl;
+  string ret;
   map<string, string> param;
   parseCommand(cmd, param);
   if (param["cmd"] == "start")
@@ -24,6 +25,7 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
     {
       doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1));
     }
+    ret = "OK";
   }
   else if (param["cmd"] == "kill")
   {
@@ -32,7 +34,10 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
     {
       doTasks[param["coreid"]]->killTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::killCallback, this, placeholders::_1));
     }
+    ret = "OK";
   }
+  if (ret != "")
+    send(sock, ret.c_str(), ret.length(), 0);
 }
 
 void Manager::setRemote(string ip, int port)
