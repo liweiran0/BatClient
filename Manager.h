@@ -11,9 +11,11 @@ private:
   void finishCallback(string cmd);
   void killCallback(string cmd);
   void parseCommand(string cmd, map<string, string>& param);
+  void callTask(map<string, string>param);
   int coreNumber;
   string localIP;
   map<string, shared_ptr<DoTask>> doTasks;
   string remoteIP;
   int remotePort;
+  thread workdingThread;
 };
