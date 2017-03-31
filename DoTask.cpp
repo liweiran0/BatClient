@@ -23,7 +23,7 @@ void DoTask::doingTask(function<void(string)> cb, string cmd)
 {
   random_device rd;
   mt19937 gen(rd());
-  uniform_int_distribution<int> distribution(55, 60);
+  uniform_int_distribution<int> distribution(10, 15);
   int time = distribution(gen);
   this_thread::sleep_for(chrono::seconds(time));
   taskThread.detach();
