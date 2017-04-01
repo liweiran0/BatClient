@@ -35,12 +35,12 @@ void DoTask::killTask(string tid, string pid, string procid, string bat, Callbac
 {
   string cmd = "taskid=\"" + tid + "\":processid=\"" + pid + "\":coreid=\"" + procid + "\"";
   if (processInfo.tid == tid && processInfo.pid == pid)
-  {
-    ::TerminateThread(taskThread.native_handle(), 1);
-    taskThread.detach();
-    //cmd=taskid="taskID":processid="processID":coreid="ProcessorID"
-    cb(cmd);
-  }
+{
+  ::TerminateThread(taskThread.native_handle(), 1);
+  taskThread.detach();
+  //cmd=taskid="taskID":processid="processID":coreid="ProcessorID"
+  cb(cmd);
+}
   else
   {
     //cmd=taskid="taskID":processid="processID":coreid="ProcessorID"

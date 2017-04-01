@@ -15,27 +15,12 @@ Manager::Manager(int cores, string ip)
 void Manager::cmdCallback(string cmd, SOCKET sock)
 {
   cout << "receive :" << cmd << endl;
-  string ret;
+  string ret = "OK";
   map<string, string> param;
   parseCommand(cmd, param);
-  if (param["cmd"] == "start")
-  {
-    //cmd="start":taskid="TaskID":taskname="TaskName":processid="ProcessID":coreid="ProcessorID":bat="LocalScriptName":logdir="RemoteLogDir"
-    if (doTasks.count(param["coreid"]) > 0)
-    {
-      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
-    }
-    ret = "OK";
-  }
-  else if (param["cmd"] == "kill")
-  {
-    //cmd="kill":taskid="taskID":processid="processID":coreid="ProcessorID":bat="RemoteScriptBat"
-    if (doTasks.count(param["coreid"]) > 0)
-    {
-      doTasks[param["coreid"]]->killTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::killCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
-    }
-    ret = "OK";
-  }
+  auto func = bind(&Manager::callTask, this, placeholders::_1);
+  workdingThread = thread(func, param);
+  workdingThread.detach();
   if (ret != "")
     send(sock, ret.c_str(), ret.length(), 0);
 }
@@ -100,6 +85,26 @@ void Manager::parseCommand(string cmd, map<string, string>& param)
     else
     {
       break;
+    }
+  }
+}
+
+void Manager::callTask(map<string, string>param)
+{
+  if (param["cmd"] == "start")
+  {
+    //cmd="start":taskid="TaskID":taskname="TaskName":processid="ProcessID":coreid="ProcessorID":bat="LocalScriptName":logdir="RemoteLogDir"
+    if (doTasks.count(param["coreid"]) > 0)
+    {
+      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
+    }
+  }
+  else if (param["cmd"] == "kill")
+  {
+    //cmd="kill":taskid="taskID":processid="processID":coreid="ProcessorID":bat="RemoteScriptBat"
+    if (doTasks.count(param["coreid"]) > 0)
+    {
+      doTasks[param["coreid"]]->killTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::killCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
     }
   }
 }
