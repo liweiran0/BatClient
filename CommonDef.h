@@ -17,3 +17,5 @@
 #include <WinSock2.h>
 
 using namespace std;
+
+typedef function<void(string)> Callback;

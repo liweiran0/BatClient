@@ -10,6 +10,7 @@ public:
 private:
   void finishCallback(string cmd);
   void killCallback(string cmd);
+  void failedCallback(string cmd);
   void parseCommand(string cmd, map<string, string>& param);
   int coreNumber;
   string localIP;

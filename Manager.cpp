@@ -23,7 +23,7 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
     //cmd="start":taskid="TaskID":taskname="TaskName":processid="ProcessID":coreid="ProcessorID":bat="LocalScriptName":logdir="RemoteLogDir"
     if (doTasks.count(param["coreid"]) > 0)
     {
-      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1));
+      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
     }
     ret = "OK";
   }
@@ -32,7 +32,7 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
     //cmd="kill":taskid="taskID":processid="processID":coreid="ProcessorID":bat="RemoteScriptBat"
     if (doTasks.count(param["coreid"]) > 0)
     {
-      doTasks[param["coreid"]]->killTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::killCallback, this, placeholders::_1));
+      doTasks[param["coreid"]]->killTask(param["taskid"], param["processid"], param["coreid"], param["bat"], bind(&Manager::killCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
     }
     ret = "OK";
   }
@@ -62,6 +62,17 @@ void Manager::killCallback(string cmd)
   ClientNet client;
   cmd = "cmd=\"killed\":ip=\"" + localIP + "\":" + cmd;
   //cmd="kill":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
+  cout << "send    :" + cmd << endl;
+  client.Connect(remoteIP.c_str(), remotePort);
+  client.SendMsg(cmd);
+  client.Close();
+}
+
+void Manager::failedCallback(string cmd)
+{
+  ClientNet client;
+  cmd = "cmd=\"failed\":ip=\"" + localIP + "\":" + cmd;
+  //cmd="failed":ip="IPAddr":order="incoming cmd":taskid="taskID":processid="processID":coreid="processorID"
   cout << "send    :" + cmd << endl;
   client.Connect(remoteIP.c_str(), remotePort);
   client.SendMsg(cmd);
