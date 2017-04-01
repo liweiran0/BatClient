@@ -1,6 +1,7 @@
 #pragma once
 #include "CommonDef.h"
 #include "DoTask.h"
+#include "ThreadPool.h"
 class Manager
 {
 public:
@@ -18,5 +19,5 @@ private:
   map<string, shared_ptr<DoTask>> doTasks;
   string remoteIP;
   int remotePort;
-  thread workdingThread;
+  ThreadPool threadPool;
 };

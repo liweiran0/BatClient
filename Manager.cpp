@@ -1,7 +1,7 @@
 #include "Manager.h"
 #include "ClientNet.h"
 
-Manager::Manager(int cores, string ip)
+Manager::Manager(int cores, string ip): threadPool(4)
 {
   localIP = ip;
   coreNumber = cores;
@@ -19,8 +19,8 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
   map<string, string> param;
   parseCommand(cmd, param);
   auto func = bind(&Manager::callTask, this, placeholders::_1);
-  workdingThread = thread(func, param);
-  workdingThread.detach();
+  //workdingThread = thread(func, param);
+  threadPool.enqueue(func, param);
   if (ret != "")
     send(sock, ret.c_str(), ret.length(), 0);
 }

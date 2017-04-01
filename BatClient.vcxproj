@@ -158,6 +158,7 @@
     <ClInclude Include="DoTask.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="ServerNet.h" />
+    <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ChangeLog.txt" />
