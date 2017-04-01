@@ -2,6 +2,7 @@
 
 2017-4-1
 Add a failed callback to send fail message.
+Using thread pool to answer tcp.
 
 2017-3-31
 Change type of taskid, processid, processorid to string.

@@ -18,9 +18,9 @@ void Manager::cmdCallback(string cmd, SOCKET sock)
   string ret = "OK";
   map<string, string> param;
   parseCommand(cmd, param);
-  auto func = bind(&Manager::callTask, this, placeholders::_1);
+  auto func = bind(&Manager::callTask, this, param);
   //workdingThread = thread(func, param);
-  threadPool.enqueue(func, param);
+  threadPool.enqueue(func);
   if (ret != "")
     send(sock, ret.c_str(), ret.length(), 0);
 }
