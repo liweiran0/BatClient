@@ -16,18 +16,22 @@ void DoTask::startTask(string tid, string pid, string procid, string bat, string
   processInfo.set(tid, pid, bat, addr);
   //taskid="taskID":processid="processID":coreid="processorID"
   //cout << " start task cmd = " << cmd << endl;
-  taskThread = thread(&DoTask::doingTask, this, cb, cmd);
+  taskThread = thread(&DoTask::doingTask, this, cb, cmd, addr, bat);
 }
 
-void DoTask::doingTask(Callback cb, string cmd)
+void DoTask::doingTask(Callback cb, string cmd, string dir, string bat)
 {
-  random_device rd;
-  mt19937 gen(rd());
-  uniform_int_distribution<int> distribution(10, 15);
-  int time = distribution(gen);
-  this_thread::sleep_for(chrono::seconds(time));
-  taskThread.detach();
-  processInfo.reset();
+  //random_device rd;
+  //mt19937 gen(rd());
+  //uniform_int_distribution<int> distribution(10, 15);
+  //int time = distribution(gen);
+  //this_thread::sleep_for(chrono::seconds(time));
+  //taskThread.detach();
+  //processInfo.reset();
+  string sys_cmd = dir + bat;
+  system(sys_cmd.c_str());
+  sys_cmd = dir + "point_postgrocessing.bat";
+  system(sys_cmd.c_str());
   cb(cmd);
 }
 

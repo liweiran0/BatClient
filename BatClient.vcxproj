@@ -164,6 +164,7 @@
     <Text Include="ChangeLog.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="client.cfg" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

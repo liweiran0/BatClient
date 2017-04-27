@@ -27,7 +27,7 @@ private:
   thread taskThread;
   ProcessInfo processInfo;
   bool idle = true;
-  void doingTask(Callback cb, string cmd);
+  void doingTask(Callback cb, string cmd, string dir, string bat);
 public:
   DoTask(string id);
   ~DoTask();

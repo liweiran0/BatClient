@@ -1,10 +1,12 @@
 #include "Manager.h"
 #include "ClientNet.h"
 
-Manager::Manager(int cores, string ip): threadPool(4)
+Manager::Manager(int cores, string ip, string nDir, string lDir): threadPool(4)
 {
   localIP = ip;
   coreNumber = cores;
+  netDir = nDir;
+  localDir = lDir;
   for (auto i = 0; i < cores; i++)
   {
     shared_ptr<DoTask> task(new DoTask(to_string(i)));
@@ -96,7 +98,7 @@ void Manager::callTask(map<string, string>param)
     //cmd="start":taskid="TaskID":taskname="TaskName":processid="ProcessID":coreid="ProcessorID":bat="LocalScriptName":logdir="RemoteLogDir"
     if (doTasks.count(param["coreid"]) > 0)
     {
-      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
+      doTasks[param["coreid"]]->startTask(param["taskid"], param["processid"], param["coreid"], param["bat"], localDir + param["logdir"], bind(&Manager::finishCallback, this, placeholders::_1), bind(&Manager::failedCallback, this, placeholders::_1));
     }
   }
   else if (param["cmd"] == "kill")

@@ -6,7 +6,7 @@ class Manager
 {
 public:
   void cmdCallback(string cmd, SOCKET sock);
-  Manager(int cores, string ip);
+  Manager(int cores, string ip, string netDir, string localDir);
   void setRemote(string ip, int port);
 private:
   void finishCallback(string cmd);
@@ -16,6 +16,8 @@ private:
   void callTask(map<string, string>param);
   int coreNumber;
   string localIP;
+  string netDir;
+  string localDir;
   map<string, shared_ptr<DoTask>> doTasks;
   string remoteIP;
   int remotePort;

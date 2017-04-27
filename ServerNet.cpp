@@ -50,7 +50,7 @@ int ServerNet::init(const char* address, int port)
   return 0;
 }
 
-void ServerNet::registerThread(string ip, short port, int cores)
+void ServerNet::registerThread(string ip, short port, int cores, string netDir)
 {
   this_thread::sleep_for(chrono::seconds(2));
   remoteIP = ip;
@@ -58,16 +58,16 @@ void ServerNet::registerThread(string ip, short port, int cores)
   client.Connect(remoteIP.c_str(), remotePort);
   string cmd("cmd=\"register\":ip=\"");
   cmd += localIP + "\":port=\"" + to_string(localPort);
-  cmd += "\":corenum=\"" + to_string(cores) + "\"";
-  //cmd="register":ip="IPAddr":port="port":corenum="CoreNumber"
+  cmd += "\":corenum=\"" + to_string(cores) + "\":netdir=\"" + netDir + "\"";
+  //cmd="register":ip="IPAddr":port="port":corenum="CoreNumber":netdir="netDir"
   client.SendMsg(cmd);
   client.Close();
 }
 
 
-void ServerNet::registerToServer(string ip, short port, int cores)
+void ServerNet::registerToServer(string ip, short port, int cores, string netDir)
 {
-  registerThread_t = thread(&ServerNet::registerThread, this, ip, port, cores);
+  registerThread_t = thread(&ServerNet::registerThread, this, ip, port, cores, netDir);
 }
 
 

@@ -19,7 +19,7 @@ typedef   struct   _SOCKET_INFORMATION
 class ServerNet
 {
 private:
-  void registerThread(string ip, short port, int cores);
+  void registerThread(string ip, short port, int cores, string netDir);
   BOOL   CreateSocketInformation(SOCKET   s);
   void   FreeSocketInformation(DWORD   Index);
   SOCKET m_sock;
@@ -44,7 +44,7 @@ private:
   DWORD   RecvBytes;                        // 接收的字节数
 public:
   int init(const char* address, int port);
-  void registerToServer(string ip, short port, int cores);
+  void registerToServer(string ip, short port, int cores, string netDir);
   void run();
   void setCallback(decltype(callback) cb);
 
