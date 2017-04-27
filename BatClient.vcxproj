@@ -166,6 +166,7 @@
   <ItemGroup>
     <None Include="client.cfg" />
     <None Include="README.md" />
+    <None Include="run.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
