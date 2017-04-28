@@ -30,7 +30,7 @@ void DoTask::doingTask(Callback cb, string cmd, string dir, string bat)
   //processInfo.reset();
   string sys_cmd = dir + bat;
   system(sys_cmd.c_str());
-  sys_cmd = dir + "point_postgrocessing.bat";
+  sys_cmd = dir + "point_postprocessing.bat";
   system(sys_cmd.c_str());
   cb(cmd);
 }

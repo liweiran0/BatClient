@@ -50,7 +50,7 @@ int ServerNet::init(const char* address, int port)
   return 0;
 }
 
-void ServerNet::registerThread(string ip, short port, int cores, string netDir)
+void ServerNet::registerThread(string ip, unsigned short port, int cores, string netDir)
 {
   this_thread::sleep_for(chrono::seconds(2));
   remoteIP = ip;
@@ -65,7 +65,7 @@ void ServerNet::registerThread(string ip, short port, int cores, string netDir)
 }
 
 
-void ServerNet::registerToServer(string ip, short port, int cores, string netDir)
+void ServerNet::registerToServer(string ip, unsigned short port, int cores, string netDir)
 {
   registerThread_t = thread(&ServerNet::registerThread, this, ip, port, cores, netDir);
 }
@@ -317,7 +317,7 @@ string getLocalIpAddress()
 }
 
 
-short getUnusedPort(short start_port)
+unsigned short getUnusedPort(unsigned short start_port)
 {
   int sock;
   int iErrorMsg;

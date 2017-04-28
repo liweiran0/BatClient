@@ -35,7 +35,7 @@ void main(int argv, char* argc[])
     stringstream ss(tmp);
     ss >> serverIP >> serverPort >> netDir >> localDir;
   }
-  short localPort = getUnusedPort(20000);
+  unsigned short localPort = getUnusedPort(20000);
   Manager manager(localCores, localIP, netDir, localDir);
   manager.setRemote(serverIP, serverPort);
   server.init(localIP.c_str(), localPort);

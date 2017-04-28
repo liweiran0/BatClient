@@ -19,16 +19,16 @@ typedef   struct   _SOCKET_INFORMATION
 class ServerNet
 {
 private:
-  void registerThread(string ip, short port, int cores, string netDir);
+  void registerThread(string ip, unsigned short port, int cores, string netDir);
   BOOL   CreateSocketInformation(SOCKET   s);
   void   FreeSocketInformation(DWORD   Index);
   SOCKET m_sock;
   function<void(string, SOCKET)> callback;
   ClientNet client;
   string remoteIP;
-  short  remotePort;
+  unsigned short  remotePort;
   string localIP;
-  short localPort;
+  unsigned short localPort;
   thread registerThread_t;
   DWORD   TotalSockets = 0;                // 记录正在使用的套接字总数量
   LPSOCKET_INFORMATION   SocketArray[FD_SETSIZE];            // 保存Socket信息对象的数组，FD_SETSIZE表示SELECT模型中允许的最大套接字数量
@@ -44,12 +44,12 @@ private:
   DWORD   RecvBytes;                        // 接收的字节数
 public:
   int init(const char* address, int port);
-  void registerToServer(string ip, short port, int cores, string netDir);
+  void registerToServer(string ip, unsigned short port, int cores, string netDir);
   void run();
   void setCallback(decltype(callback) cb);
 
 };
 
 string getLocalIpAddress();
-short getUnusedPort(short start_port);
+unsigned short getUnusedPort(unsigned short start_port);
 string getCommandFromString(string &str);
