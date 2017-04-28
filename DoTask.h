@@ -20,6 +20,7 @@ struct ProcessInfo
   }
 };
 
+typedef function<void()> Task;
 class DoTask
 {
 private:
@@ -27,10 +28,14 @@ private:
   thread taskThread;
   ProcessInfo processInfo;
   bool idle = true;
-  void doingTask(Callback cb, string cmd, string dir, string bat);
+  queue<Task> taskQueue;
+  mutex queueMutex;
+  condition_variable cv;
+  void startThread();
 public:
   DoTask(string id);
   ~DoTask();
+  void workingThread();
   void startTask(string tid, string pid, string procid, string bat, string addr, Callback cb, Callback cb2);
   void killTask(string tid, string pid, string procid, string bat, Callback cb, Callback cb2);
 };
