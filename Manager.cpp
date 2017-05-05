@@ -17,7 +17,7 @@ Manager::Manager(int cores, string ip, string nDir, string lDir): threadPool(4)
 void Manager::cmdCallback(string cmd, SOCKET sock)
 {
   cout << "receive :" << cmd << endl;
-  string ret = "OK";
+  string ret = "OK\0";
   map<string, string> param;
   parseCommand(cmd, param);
   auto func = bind(&Manager::callTask, this, param);

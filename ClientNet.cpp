@@ -40,12 +40,12 @@ int ClientNet::SendMsg(string msg)
 {
   int rlt = 0;
   int iErrMsg;
-  msg = "{" + msg + "}";
+  msg = "{" + msg + "}\0";
   iErrMsg = send(m_sock, msg.c_str(), msg.length(), 0);
   //cout << "send msg :" << msg << endl;
   if (iErrMsg < 0)
   {
-    printf("send msg failed with error : %d\n", iErrMsg);
+    printf("send msg %s failed with error : %d\n", msg.c_str(), iErrMsg);
     rlt = -1;
     return rlt;
   }
@@ -57,7 +57,7 @@ void ClientNet::Close()
   char buf[1024];
   if (recv(m_sock, buf, 1024, 0) <= 0)
   {
-    cout << "¹Ø±ÕÁ¬½Ó!" << endl;
+    cout << "close connection!" << endl;
   }
   string tmp(buf);
   if (tmp.find("OK") == 0)
