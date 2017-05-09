@@ -20,7 +20,23 @@ struct ProcessInfo
   }
 };
 
-typedef function<void()> Task;
+class Task
+{
+public:
+  Task(string cmd);
+  Task();
+  Task(function<void()> f);
+  ~Task();
+  BOOL terminateExe();
+  PROCESS_INFORMATION* start();
+private:
+  STARTUPINFO         m_si;
+  PROCESS_INFORMATION m_pi;
+  string cmd;
+  function<void()> cb;
+  BOOL exeCmd();
+};
+
 class DoTask
 {
 private:
@@ -28,10 +44,11 @@ private:
   thread taskThread;
   ProcessInfo processInfo;
   bool idle = true;
-  queue<Task> taskQueue;
+  queue<shared_ptr<Task>> taskQueue;
   mutex queueMutex;
   condition_variable cv;
   void startThread();
+  shared_ptr<Task> currentTask;
 public:
   DoTask(string id);
   ~DoTask();

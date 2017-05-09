@@ -48,7 +48,7 @@ void Manager::killCallback(string cmd)
 {
   ClientNet client;
   cmd = "cmd=\"killed\":ip=\"" + localIP + "\":" + cmd;
-  //cmd="kill":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
+  //cmd="killed":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
   cout << "send    :" + cmd << endl;
   client.Connect(remoteIP.c_str(), remotePort);
   client.SendMsg(cmd);
