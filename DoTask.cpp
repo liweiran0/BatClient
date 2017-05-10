@@ -1,4 +1,6 @@
 #include "DoTask.h"
+void getFiles(string path, vector<string>& files);
+
 DoTask::DoTask(string id): processorID(id), queueMutex(), cv()
 {
   startThread();
@@ -47,7 +49,36 @@ void DoTask::startTask(string tid, string pid, string procid, string bat, string
   //cout << " start task cmd = " << cmd << endl;
   string sys_cmd1 = addr + bat;
   string sys_cmd2 = addr + "point_postprocessing.bat";
-
+  vector<string> files;
+  getFiles(addr, files);
+  string fileList = addr + "filelist.txt";
+  FILE *fpFileList = fopen(fileList.c_str(), "r");
+  if (!fpFileList)
+  {
+    cmd = "order=\"start\":" + cmd;
+    cb2(cmd);
+    return;
+  }
+  char buffer[1024];
+  while (!feof(fpFileList))
+  {
+    memset(buffer, 0, sizeof(char) * 1024);
+    fgets(buffer, 1023, fpFileList);
+    string tmp(buffer);
+    if (tmp.find_last_not_of("\r\n") != string::npos)
+      tmp = tmp.substr(0, tmp.find_last_not_of("\r\n") + 1);
+    if (tmp != "")
+    {
+      if (find(files.begin(), files.end(), tmp) == files.end())
+      {
+        cmd = "order=\"start\":" + cmd;
+        cb2(cmd);
+        fclose(fpFileList);
+        return;
+      }
+    }
+  }
+  fclose(fpFileList);
   {
     unique_lock<mutex> lck(queueMutex);
     taskQueue.push(make_shared<Task>(sys_cmd1));
@@ -56,8 +87,6 @@ void DoTask::startTask(string tid, string pid, string procid, string bat, string
     cv.notify_one();
   }
 }
-
-
 
 void DoTask::killTask(string tid, string pid, string procid, string bat, Callback cb, Callback cb2)
 {
@@ -168,4 +197,31 @@ BOOL Task::terminateExe()
   ZeroMemory(&m_pi, sizeof(m_pi));
 
   return TRUE;
+}
+
+void getFiles(string path, vector<string>& files)
+{
+  //文件句柄  
+  long   hFile;
+  //文件信息  
+  struct _finddata_t fileinfo;
+  string p;
+  if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
+  {
+    do
+    {
+      //如果是目录,迭代之  
+      //如果不是,加入列表  
+      if ((fileinfo.attrib &  _A_SUBDIR))
+      {
+        if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+          getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+      }
+      else
+      {
+        files.push_back(fileinfo.name);
+      }
+    } while (_findnext(hFile, &fileinfo) == 0);
+    _findclose(hFile);
+  }
 }
