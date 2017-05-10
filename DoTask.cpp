@@ -148,6 +148,7 @@ BOOL Task::exeCmd()
     printf("CreateProcess failed (%d)/n", GetLastError());
     return 0;
   }
+
   return TRUE;
 }
 
@@ -155,18 +156,11 @@ BOOL Task::terminateExe()
 {
   if (m_pi.hProcess && m_pi.hThread)
   {
-    DWORD dwEC = 0;
-    BOOL b = GetExitCodeProcess(
-      m_pi.hProcess,     // handle to the process
-      &dwEC              // termination status
-      );
-
-    if (b)
-    {
-      TerminateProcess(m_pi.hProcess, dwEC);
-    }
     CloseHandle(m_pi.hProcess);
     CloseHandle(m_pi.hThread);
+    string cmdline = "";
+    cmdline += "taskkill /PID " + to_string(m_pi.dwProcessId) + " /F /T";
+    system(cmdline.c_str());
   }
 
   ZeroMemory(&m_si, sizeof(m_si));
