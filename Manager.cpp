@@ -38,7 +38,6 @@ void Manager::finishCallback(string cmd)
   ClientNet client;
   cmd = "cmd=\"finish\":ip=\"" + localIP + "\":" + cmd;
   //cmd="finish":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
-  cout << "send    :" + cmd << endl;
   client.Connect(remoteIP.c_str(), remotePort);
   client.SendMsg(cmd);
   client.Close();
@@ -49,7 +48,6 @@ void Manager::killCallback(string cmd)
   ClientNet client;
   cmd = "cmd=\"killed\":ip=\"" + localIP + "\":" + cmd;
   //cmd="killed":ip="IPAddr":taskid="taskID":processid="processID":coreid="processorID"
-  cout << "send    :" + cmd << endl;
   client.Connect(remoteIP.c_str(), remotePort);
   client.SendMsg(cmd);
   client.Close();
@@ -60,7 +58,6 @@ void Manager::failedCallback(string cmd)
   ClientNet client;
   cmd = "cmd=\"failed\":ip=\"" + localIP + "\":" + cmd;
   //cmd="failed":ip="IPAddr":order="incoming cmd":taskid="taskID":processid="processID":coreid="processorID"
-  cout << "send    :" + cmd << endl;
   client.Connect(remoteIP.c_str(), remotePort);
   client.SendMsg(cmd);
   client.Close();
